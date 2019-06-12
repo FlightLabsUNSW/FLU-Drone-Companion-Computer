@@ -7,8 +7,8 @@ open('mission_data.json','r') as data_f:
 	mission_data = json.load(data_f)
 
 waypointType = 16
-default_alt = 150
-header_name = "QGC_WPL_110"
+default_alt = 150.000000
+header_name = "QGC WPL 110"
 
 # Import Waypoint and Obstacle Data from Mission Data
 def sortMissionData(mission_data):
@@ -45,7 +45,7 @@ def distanceTwoPoints(firstPoint, secondPoint):
 
 	R = 6372.795477598 # Radius of Earth in km
 
-	distance = R * arcmath.cos( math.sin(firstPoint[1]) * math.sin(secondPoint[1]) + math.cos(firstPoint[1]) * math.cos(secondPoint[1]) * math.cos(firstPoint[2]) - secondPoint[2]))
+	distance = R * arcmath.cos( math.sin(firstPoint[0]) * math.sin(secondPoint[0]) + math.cos(firstPoint[0]) * math.cos(secondPoint[0]) * math.cos(firstPoint[1]) - secondPoint[1]))
 
 	return distance
 
@@ -72,8 +72,8 @@ def calculateBearing(firstPoint, secondPoint):
     # theta - float - Bearing Angle in Radians
 
 	# Determine change in latitude and longitude
-    delta_Lat = math.log( math.tan( secondPoint[1]/2 + pi/4 )/math.tan( firstPoint[1]/2 + pi/4) )
-    delta_Long = abs(firstPoint[2] - secondPoint[2])
+    delta_Lat = math.log( math.tan( secondPoint[0]/2 + pi/4 )/math.tan( firstPoint[0]/2 + pi/4) )
+    delta_Long = abs(firstPoint[1]] - secondPoint[1])
 
 	# Keep the change in longitude within the domain of -180 < delta_Long < 180
     if delta_Long > 180:
@@ -101,8 +101,8 @@ def pointFromDistBear(firstPoint, thirdPoint, distance):
     bearing = calculateBearing(firstPoint, thirdPoint)
 
 	# Determine Position of Second Point
-    lat2 = amath.sin( math.sin(firstPoint[1]) * math.cos(distance/R) + math.cos(firstPoint[1]) * math.sin(distance/R) * math.cos(bearing) )
-    long2 = firstPoint[2] + math.atan2( math.sin(bearing) * math.sin(distance/R) * math.cos(firstPoint[1]), math.cos(distance/R) - math.sin(firstPoint[1]) * math.sin(lat2))
+    lat2 = amath.sin( math.sin(firstPoint[0]) * math.cos(distance/R) + math.cos(firstPoint[0]) * math.sin(distance/R) * math.cos(bearing) )
+    long2 = firstPoint[1] + math.atan2( math.sin(bearing) * math.sin(distance/R) * math.cos(firstPoint[0]), math.cos(distance/R) - math.sin(firstPoint[0]) * math.sin(lat2))
 
     secondPoint = [lat2, long2]
 
@@ -155,10 +155,25 @@ def calculateFlightPath(waypoints, exclusionPoints, stepDistance, exclusionRadiu
 
     # 3. If three consecutive waypoints are collinear, remove the middle waypoint.
     for index, point in enumerate(flightPath[1:-1]):
-        bearing1 = calculateBearing( flightPath[index -1], point)
+        bearing1 = calculateBearing( flightPath[index-1], point)
         bearing2 = calculateBearing( point, flightPath[index + 1])
         if bearing1 == bearing2:
             flightPath.remove(point)
 
-
 	return flightPath
+
+def exportMission(waypointType, flightPath, default_alt):
+    ### INPUTS ###
+    # waypointType - integer - Number defining Waypoint Type
+    # flightPath - nx1 list - List storing Coordinate Vectors for Travel Points for Flight
+    # default_alt - float - Default Altitude
+    ### OUTPUT ###
+    # mpmission.waypoint - waypoint file - Waypoint File for Mission Planner
+
+    file = open("mpmission.waypoint","w")
+
+    file.write(header_name + "\n")
+    for idx, point in enumerate(flightPath):
+        file.write( str(idx) + "\t0\t0\t" + str(waypointType) + "\t0.000000\t0.000000\t0.000000\t0.000000\t" +
+            "{:.6f}".format(point[0]) + "\t" + "{:.6f}".format(point[1]) + "\t" + "{:.6f}".format(default_alt) +
+            "\t" + str(1) + "\n")
