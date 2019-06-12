@@ -21,11 +21,11 @@ if __name__ == "__main__":
         if type(title_val) == list:
             for item in title_val:
                 for key, val in item.items():
-                    if re.search(key, 'atlitude') or key in ['radius', 'height']:
+                    if re.search('atlitude', key, re.I) or key in ['radius', 'height']:
                         item[key] = convert_feet_meters(val)
         elif type(title_val) == dict:
             for key, val in title_val.items():
-                if re.search(key, 'atlitude') or key in ['radius', 'height']:
+                if re.search('atlitude', key, re.I) or key in ['radius', 'height']:
                     item[key] = convert_feet_meters(val)
         with open(title_key+'.txt', 'w') as title_f:
             title_f.write(title_key+'\n')
