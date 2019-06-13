@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import json
+import argparse
 
 # Importing the Data from the .json file
 open('mission_data.json','r') as data_f:
@@ -10,8 +11,23 @@ waypointType = 16
 default_alt = 150.000000
 header_name = "QGC WPL 110"
 
+# ArgParse Default Values
+stepDistanceMin = 10.0 # in kilometers
+exclusionRadiusToleranceMin = 10.0 # in kilometers
+
+# Parser Arguments
+parse = argparse.ArgumentParser(description = "Constructs a Flight Path from Given Waypoints and Obstacles")
+parser.add_argument("json_file", help = 'Input Mission Data .JSON File')
+parser.add_argument("--step", action = "store", dest = "stepDistance", type = float, default = stepDistanceMin, help = "Step Distance between Target Point - Define in km")
+parser.add_argument("--tolerance", action = "store", dest = "exclusionRadiusTolerance", type = float, default = exclusionRadiusToleranceMin, help = "Tolerance for Exclusion Radius around Obstacles - Define in km")
+
+results = parser.parse_args()
+mission_data = results.json_file
+stepDistance = results.stepDistance
+exclusionRadiusTolerance = results.exclusionRadiusTolerance
+
 # Import Waypoint and Obstacle Data from Mission Data
-def sortMissionData(mission_data):
+def extractMissionData(mission_data):
 	### INPUTS ###
 	# mission_data - dictionary - Received Mission Data
 	### OUTPUTS ###
