@@ -1,0 +1,100 @@
+{
+  "id": 1,
+  "flyZones": [
+    {
+      "altitudeMin": 0.0,
+      "altitudeMax": 750.0,
+      "boundaryPoints": [
+        {
+          "latitude": 38.142544,
+          "longitude": -76.434088
+        },
+        {
+          "latitude": 38.141833,
+          "longitude": -76.425263
+        },
+        {
+          "latitude": 38.144678,
+          "longitude": -76.427995
+        }
+      ]
+    }
+  ],
+  "waypoints": [
+    {
+        "latitude": 38.142544,
+        "longitude": -76.434088,
+        "altitude": 200.0
+  },
+    {
+        "latitude": 38.147806,
+        "longitude": -76.419304,
+        "altitude": 200.0
+    },
+    {
+        "latitude": 38.146682,
+        "longitude": -76.426248,
+        "altitude": 200.0
+    },
+    {
+        "latitude": 38.148785,
+        "longitude": -76.432016,
+        "altitude": 200.0
+    },
+    {
+        "latitude": 38.142002,
+        "longitude": -76.425437,
+        "altitude": 200.0
+    }
+  ],
+  "searchGridPoints": [
+    {
+      "latitude": 38.142544,
+      "longitude": -76.434088
+    }
+  ],
+  "offAxisOdlcPos": {
+    "latitude": 38.142544,
+    "longitude": -76.434088
+  },
+  "emergentLastKnownPos": {
+    "latitude": 38.145823,
+    "longitude": -76.422396
+  },
+  "airDropPos": {
+    "latitude": 38.141833,
+    "longitude": -76.425263
+  },
+  "stationaryObstacles": [
+    {
+      "latitude": 38.14792,
+      "longitude": -76.427995,
+      "radius": 150.0,
+      "height": 200.0
+    },
+    {
+      "latitude": 38.145823,
+      "longitude": -76.422396,
+      "radius": 50.0,
+      "height": 300.0
+    },
+    {
+      "latitude": 38.145101,
+      "longitude": -76.429522,
+      "radius": 100.0,
+      "height": 300.0
+    },
+    {
+      "latitude": 38.143332,
+      "longitude": -76.429715,
+      "radius": 200.0,
+      "height": 300.0
+    },
+    {
+      "latitude": 38.143066,
+      "longitude": -76.426601,
+      "radius": 150.0,
+      "height": 300.0
+    }
+  ]
+}
