@@ -43,7 +43,7 @@ wren = connect(connection_string_wren, wait_ready=True, baud=57600, heartbeat_ti
 #####
 
 print('Connecting to Cygnet on: %s' % connection_string_cygnet)
-wren = connect(connection_string_cygnet, wait_ready=True, baud=57600, heartbeat_timeout=120)
+cygnet = connect(connection_string_cygnet, wait_ready=True, baud=57600, heartbeat_timeout=120)
 
 # Speech
 import pyttsx3
@@ -158,12 +158,12 @@ def upload_mission_cygnet(aFileName):
     missionlist = readmission(aFileName)
 
     print("\nUpload mission from a file: %s" % aFileName)
-    # Clear existing mission from wren
+    # Clear existing mission from cygnet
     print(' Clear mission')
     cmds = cygnet.commands
     cmds.clear()
 
-    # Add new mission to wren
+    # Add new mission to cygnet
     for command in missionlist:
         cmds.add(command)
     print(' Upload mission')
@@ -208,7 +208,7 @@ def do_arm_cygnet():
     print("Basic pre-arm checks")
     # Don't try to arm until autopilot is ready
     while not cygnet.is_armable:
-        print(" Waiting for wren to initialise...")
+        print(" Waiting for cygnet to initialise...")
         time.sleep(1)
 
     # Speech
@@ -223,7 +223,7 @@ def do_arm_cygnet():
     cygnet.armed = True
     cygnet.flush()
 
-    # Confirm wren armed before attempting to take off
+    # Confirm cygnet armed before attempting to take off
     while not cygnet.armed:
         print(" Waiting for arming...")
         time.sleep(1)
@@ -234,134 +234,135 @@ def do_arm_cygnet():
     engine.say("Motors Armed... preparing for drive...")
     engine.runAndWait()
 
-#####
-# Upload Mission
-#####
-upload_mission_wren("mission/waypoints/uav_mission.waypoints")
-upload_mission_cygnet("mission/waypoints/ugv_mission_update.waypoints")
-
-#####
-# Arm WREN
-#####
-do_arm_wren()
-
-# wren.location.global_relative_frame.alt
-
-
-
-#time.sleep(10)
-
-wren.commands.next=0
-
-#####
-# Set mode to AUTO to start drop mission
-#####
-wren.mode = VehicleMode("AUTO")
-last = 0
-
-while True:
-    nextwaypoint = wren.commands.next
-    print("Next waypoint = ", nextwaypoint)
-    if nextwaypoint == 0: #if nextwaypoint == len(wren.commands):
-        break
-
-time.sleep(1)
-#####
-# Set Wren mode to loiter and wait for next mission
-#####
-wren.mode = VehicleMode("LOITER")
-time.sleep(1)
-
-print("If ready for drop press y:")
-# Speech
-import pyttsx3
-engine = pyttsx3.init()
-engine.say("Ready to drop")
-engine.runAndWait()
-
-while not input().lower().endswith("y"):
-    continue
-
-#####
-# Send winch
-#####
-upload_mission_wren("mission/waypoints/uav_mission.waypoints")
-
-#####
-# Arm
-#####
-do_arm_cygnet()
-
-cygnet.commands.next=0
-
-#####
-# Set mode to AUTO to start drop mission
-#####
-cygnet.mode = VehicleMode("AUTO")
-last = 0
-
-while True:
-    nextwaypoint = cygnet.commands.next
-    print("Next waypoint = ", nextwaypoint)
-    if nextwaypoint == 0: #if nextwaypoint == len(wren.commands):
-        break
-
-cygnet.armed = False
-time.sleep(1)
-
-#####
-# Set mode to loiter and wait for next mission
-#####
-
-
-#####
-# Set mode to AUTO to start drop mission
-#####
-
-#####
-# Set mode to loiter and wait for next mission
-#####
-
-#####
-# Set mode to AUTO to start drop mission
-#####
-
-
-#print("Returning to Launch")
-#wren.mode = VehicleMode("RTL")
-'''
-while True:
-    print(" Altitude: ", wren.location.global_relative_frame.alt)
-    # Break and return from function just below target altitude.
-    if wren.location.global_relative_frame.alt <= 0 + 1:
-        print("Landed")
-        break
-    time.sleep(0.25)
-'''
-
-time.sleep(5)
-
-## TODO:
-# add second vechile
-# add loiter
-
-#Close wren object before exiting script
-print("Say bye to Wren")
-wren.close()
-
-print("Say bye to Cygnet")
-cygnet.close()
-
-# Shut down simulator if it was started.
-if sitl is not None:
-    sitl.stop()
-
-#wren.mode = VehicleMode("GUIDED")
-
-#print(math.degrees(wren.attitude.yaw))
-
-#copy_control.copytree(image_dest, image_src)
-
-#while not False: time.sleep(0.1)
-
-#time.sleep(30)
+if __name__ == "__main__":
+    #####
+    # Upload Mission
+    #####
+    upload_mission_wren("mission/waypoints/uav_mission.waypoints")
+    upload_mission_cygnet("mission/waypoints/ugv_mission_update.waypoints")
+    
+    #####
+    # Arm WREN
+    #####
+    do_arm_wren()
+    
+    # wren.location.global_relative_frame.alt
+    
+    
+    
+    #time.sleep(10)
+    
+    wren.commands.next=0
+    
+    #####
+    # Set mode to AUTO to start drop mission
+    #####
+    wren.mode = VehicleMode("AUTO")
+    last = 0
+    
+    while True:
+        nextwaypoint = wren.commands.next
+        print("Next waypoint = ", nextwaypoint)
+        if nextwaypoint == len(wren.commands):
+            break
+    
+    time.sleep(1)
+    #####
+    # Set Wren mode to loiter and wait for next mission
+    #####
+    wren.mode = VehicleMode("LOITER")
+    time.sleep(1)
+    
+    print("If ready for drop press y:")
+    # Speech
+    import pyttsx3
+    engine = pyttsx3.init()
+    engine.say("Ready to drop")
+    engine.runAndWait()
+    
+    while not input().lower().endswith("y"):
+        continue
+    
+    #####
+    # Send winch
+    #####
+    upload_mission_wren("mission/waypoints/winch.waypoints")
+    
+    #####
+    # Arm
+    #####
+    do_arm_cygnet()
+    
+    cygnet.commands.next=0
+    
+    #####
+    # Set mode to AUTO to start drop mission
+    #####
+    cygnet.mode = VehicleMode("AUTO")
+    last = 0
+    
+    while True:
+        nextwaypoint = cygnet.commands.next
+        print("Next waypoint = ", nextwaypoint)
+        if nextwaypoint == len(wren.commands):
+            break
+    
+    cygnet.armed = False
+    time.sleep(1)
+    
+    #####
+    # Set mode to loiter and wait for next mission
+    #####
+    
+    
+    #####
+    # Set mode to AUTO to start drop mission
+    #####
+    
+    #####
+    # Set mode to loiter and wait for next mission
+    #####
+    
+    #####
+    # Set mode to AUTO to start drop mission
+    #####
+    
+    
+    #print("Returning to Launch")
+    #wren.mode = VehicleMode("RTL")
+    '''
+    while True:
+        print(" Altitude: ", wren.location.global_relative_frame.alt)
+        # Break and return from function just below target altitude.
+        if wren.location.global_relative_frame.alt <= 0 + 1:
+            print("Landed")
+            break
+        time.sleep(0.25)
+    '''
+    
+    time.sleep(5)
+    
+    ## TODO:
+    # add second vechile
+    # add loiter
+    
+    #Close wren object before exiting script
+    print("Say bye to Wren")
+    wren.close()
+    
+    print("Say bye to Cygnet")
+    cygnet.close()
+    
+    # Shut down simulator if it was started.
+    if sitl is not None:
+        sitl.stop()
+    
+    #wren.mode = VehicleMode("GUIDED")
+    
+    #print(math.degrees(wren.attitude.yaw))
+    
+    #copy_control.copytree(image_dest, image_src)
+    
+    #while not False: time.sleep(0.1)
+    
+    #time.sleep(30)
