@@ -108,6 +108,10 @@ def readmission(aFileName):
 # Arm Wren
 #####
 def do_arm():
+
+#copy_control.copytree(image_dest, image_src)
+
+
     print("Basic pre-arm checks")
     # Don't try to arm until autopilot is ready
     while not wren.is_armable:
@@ -138,7 +142,7 @@ def do_arm():
     engine.runAndWait()
 
 do_arm()
-    '''
+'''
     print("Taking off!")
     wren.simple_takeoff(5)  # Take off to target altitude
     # Wait until the wren reaches a safe height before processing the goto
@@ -151,7 +155,7 @@ do_arm()
             print("Reached target altitude")
             break
         time.sleep(0.25)
-    '''
+'''
 
 #####
 # Upload Mission
