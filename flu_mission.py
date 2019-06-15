@@ -17,7 +17,7 @@ parser.add_argument('--connect',
 args = parser.parse_args()
 
 connection_string_wren = args.connect
-#connection_string_cygnet = '10.0.2.15:14551'
+connection_string_cygnet = '10.0.2.15:14551'
 ## Change for winch
 winchChannel = 4
 winchTime = 30
@@ -32,7 +32,7 @@ if not connection_string_wren:
 # Speech
 import pyttsx3
 engine = pyttsx3.init()
-engine.say("Connecting to wren... please wait...")
+engine.say("Connecting to wren and cygnet... please wait...")
 engine.runAndWait()
 
 #####
@@ -45,8 +45,8 @@ wren = connect(connection_string_wren, wait_ready=True, baud=57600, heartbeat_ti
 # Connect to the cygnet
 #####
 
-#print('Connecting to Cygnet on: %s' % connection_string_cygnet)
-#cygnet = connect(connection_string_cygnet, wait_ready=True, baud=57600, heartbeat_timeout=120)
+print('Connecting to Cygnet on: %s' % connection_string_cygnet)
+cygnet = connect(connection_string_cygnet, wait_ready=True, baud=57600, heartbeat_timeout=120)
 
 # Speech
 import pyttsx3
@@ -114,6 +114,16 @@ def readmission_wren(aFileName):
                 cmd = Command( 0, 0, 0, ln_frame, ln_command, ln_currentwp, ln_autocontinue, ln_param1, ln_param2, ln_param3, ln_param4, ln_param5, ln_param6, ln_param7)
                 missionlist.append(cmd)
     return missionlist
+
+print("Ready for mission? Press y:")
+# Speech
+import pyttsx3
+engine = pyttsx3.init()
+engine.say("Ready for mission? Press y")
+engine.runAndWait()
+
+while not input().lower().endswith("y"):
+    continue
 
 #####
 # Arm Wren
