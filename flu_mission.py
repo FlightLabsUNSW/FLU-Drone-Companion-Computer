@@ -18,6 +18,9 @@ args = parser.parse_args()
 
 connection_string_wren = args.connect
 connection_string_cygnet = '10.0.2.15:14551'
+## Change for winch
+winchChannel = 4
+winchTime = 30
 sitl = None
 
 # Start SITL if no connection string specified
@@ -240,129 +243,141 @@ if __name__ == "__main__":
     #####
     upload_mission_wren("mission/waypoints/uav_mission.waypoints")
     upload_mission_cygnet("mission/waypoints/ugv_mission_update.waypoints")
-    
+
     #####
     # Arm WREN
     #####
     do_arm_wren()
-    
+
     # wren.location.global_relative_frame.alt
-    
-    
-    
+
+
+
     #time.sleep(10)
-    
+
     wren.commands.next=0
-    
+
     #####
     # Set mode to AUTO to start drop mission
     #####
     wren.mode = VehicleMode("AUTO")
     last = 0
-    
+
     while True:
         nextwaypoint = wren.commands.next
         print("Next waypoint = ", nextwaypoint)
         if nextwaypoint == len(wren.commands):
             break
-    
+
     time.sleep(1)
     #####
     # Set Wren mode to loiter and wait for next mission
     #####
     wren.mode = VehicleMode("LOITER")
     time.sleep(1)
-    
+
     print("If ready for drop press y:")
     # Speech
     import pyttsx3
     engine = pyttsx3.init()
     engine.say("Ready to drop")
     engine.runAndWait()
-    
+
     while not input().lower().endswith("y"):
         continue
-    
+
     #####
     # Send winch
     #####
-    upload_mission_wren("mission/waypoints/winch.waypoints")
-    
+    print("Dropping")
+    # Speech
+    import pyttsx3
+    engine = pyttsx3.init()
+    engine.say("Dropping the Package... Dropping the Package...")
+    engine.runAndWait()
+    wren.channels.overrides[winchChannel] = 1500
+    time.sleep(1)
+    wren.channels.overrides[winchChannel] = 0
+
+
     #####
     # Arm
     #####
+    print("Waiting for drop")
+    # Speech
+    import pyttsx3
+    engine = pyttsx3.init()
+    engine.say("Waiting for drop to complete")
+    engine.runAndWait()
+
+    time.sleep(winchTime)
+
+    print("Drop Complete")
+    # Speech
+    import pyttsx3
+    engine = pyttsx3.init()
+    engine.say("Drop Complete")
+    engine.runAndWait()
+
+    print("Arming Cygnet")
+    # Speech
+    import pyttsx3
+    engine = pyttsx3.init()
+    engine.say("Arming Cygnet... Please stand clear...")
+    engine.runAndWait()
+
     do_arm_cygnet()
-    
+    # disconnect winch
+    print("Disconnecting winch")
+    # Speech
+    import pyttsx3
+    engine = pyttsx3.init()
+    engine.say("Disconnecting winch")
+    engine.runAndWait()
+    wren.channels.overrides[winchChannel] = 1500
+
     cygnet.commands.next=0
-    
+
     #####
     # Set mode to AUTO to start drop mission
     #####
     cygnet.mode = VehicleMode("AUTO")
     last = 0
-    
+
     while True:
         nextwaypoint = cygnet.commands.next
         print("Next waypoint = ", nextwaypoint)
         if nextwaypoint == len(wren.commands):
             break
-    
+
     cygnet.armed = False
     time.sleep(1)
-    
-    #####
-    # Set mode to loiter and wait for next mission
-    #####
-    
-    
-    #####
-    # Set mode to AUTO to start drop mission
-    #####
-    
-    #####
-    # Set mode to loiter and wait for next mission
-    #####
-    
-    #####
-    # Set mode to AUTO to start drop mission
-    #####
-    
-    
-    #print("Returning to Launch")
-    #wren.mode = VehicleMode("RTL")
-    '''
-    while True:
-        print(" Altitude: ", wren.location.global_relative_frame.alt)
-        # Break and return from function just below target altitude.
-        if wren.location.global_relative_frame.alt <= 0 + 1:
-            print("Landed")
-            break
-        time.sleep(0.25)
-    '''
-    
+
+    wren.mode = VehicleMode("RTL")
+
+    wren.armed = False
+    time.sleep(1)
+
     time.sleep(5)
-    
-    ## TODO:
-    # add second vechile
-    # add loiter
-    
+
+
     #Close wren object before exiting script
     print("Say bye to Wren")
     wren.close()
-    
+
     print("Say bye to Cygnet")
     cygnet.close()
-    
+
     # Shut down simulator if it was started.
     if sitl is not None:
         sitl.stop()
-    
-    #wren.mode = VehicleMode("GUIDED")
-    
-    #print(math.degrees(wren.attitude.yaw))
-    
-    #copy_control.copytree(image_dest, image_src)
-    
-    #while not False: time.sleep(0.1)
-    
+
     #time.sleep(30)
+
+    #wren.mode = VehicleMode("GUIDED")
+
+    #print(math.degrees(wren.attitude.yaw))
+
+    #copy_control.copytree(image_dest, image_src)
+
+    #while not False: time.sleep(0.1)
