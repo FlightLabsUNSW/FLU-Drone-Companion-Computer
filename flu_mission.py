@@ -1,5 +1,8 @@
 #!/usr/local/bin/python3
 
+#####
+# WELCOME TO FLU
+#####
 from __future__ import print_function
 import time
 import json
@@ -16,79 +19,40 @@ args = parser.parse_args()
 connection_string = args.connect
 sitl = None
 
-'''
-def load_params():
-    with open("mission_config.dat", "r") as f:
-        for line in f:
-            if line != "":
-                process_param(line)
-
-
-def process_param(line):
-    global zip, ssid, profile, mission, zip_area, image_src, image_dest, camera_ssid, camera_profile
-    line = line.replace(" ", "")
-    s = line.split("=")
-    if(len(s) < 2): return
-    type = s[0]
-    data = s[1]
-
-    if type == "zip":
-        zip = int(data)
-    elif type == "wifi_ssid":
-        wifi_ssid = data
-    elif type == "wifi_profile":
-        wifi_profile = data
-    elif type == "mission_name":
-        mission = "missions/" + data
-    elif type == "zip_area":
-        zip_area = data
-        #print("Zip area: ", zip_area)
-    elif type == "image_src":
-        image_src = data
-    elif type == "image_dest":
-        image_dest = data
-    elif type == "camera_ssid":
-        camera_ssid = data
-    elif type == "camera_profile":
-        camera_profile = data
-
-
-
-load_params()
-'''
-
-
 # Start SITL if no connection string specified
 if not connection_string:
     import dronekit_sitl
     sitl = dronekit_sitl.start_default()
     connection_string = sitl.connection_string()
 
-
+# Speech
 import pyttsx3
-
 engine = pyttsx3.init()
-engine.say("Connecting to vehicle... please wait...")
+engine.say("Connecting to wren... please wait...")
 engine.runAndWait()
 
-# Connect to the Vehicle
-print('Connecting to vehicle on: %s' % connection_string)
-vehicle = connect(connection_string, wait_ready=True, baud=57600, heartbeat_timeout=120)
+#####
+# Connect to the wren
+#####
+print('Connecting to wren on: %s' % connection_string)
+wren = connect(connection_string, wait_ready=True, baud=57600, heartbeat_timeout=120)
 
+# Speech
 import pyttsx3
-
 engine = pyttsx3.init()
-engine.say("Vehicle Connected!")
+engine.say("wren Connected!")
 engine.runAndWait()
 
 '''
 while True:
-    print("Loop: %s" % str(vehicle.last_heartbeat))
+    print("Loop: %s" % str(wren.last_heartbeat))
     time.sleep(1)
 '''
 #time.sleep(10)
 
-
+#####
+# Upload Mission Functions
+#####
 def upload_mission(aFileName):
     """
     Upload a mission from a file.
@@ -98,16 +62,16 @@ def upload_mission(aFileName):
     missionlist = readmission(aFileName)
 
     print("\nUpload mission from a file: %s" % aFileName)
-    # Clear existing mission from vehicle
+    # Clear existing mission from wren
     print(' Clear mission')
-    cmds = vehicle.commands
+    cmds = wren.commands
     cmds.clear()
 
-    # Add new mission to vehicle
+    # Add new mission to wren
     for command in missionlist:
         cmds.add(command)
     print(' Upload mission')
-    vehicle.commands.upload()
+    wren.commands.upload()
 
 def readmission(aFileName):
     """
@@ -115,7 +79,7 @@ def readmission(aFileName):
     This function is used by upload_mission().
     """
     print("Reading mission from file: %s\n" % aFileName)
-    cmds = vehicle.commands
+    cmds = wren.commands
     missionlist=[]
     with open(aFileName) as f:
         for i, line in enumerate(f):
@@ -140,30 +104,34 @@ def readmission(aFileName):
                 missionlist.append(cmd)
     return missionlist
 
+#####
+# Arm Wren
+#####
 def do_arm():
     print("Basic pre-arm checks")
     # Don't try to arm until autopilot is ready
-    while not vehicle.is_armable:
-        print(" Waiting for vehicle to initialise...")
+    while not wren.is_armable:
+        print(" Waiting for wren to initialise...")
         time.sleep(1)
 
+    # Speech
     import pyttsx3
-
     engine = pyttsx3.init()
     engine.say("Arming motors... please stand clear...")
     engine.runAndWait()
 
     print("Arming motors")
     # Copter should arm in GUIDED mode
-    vehicle.mode = VehicleMode("GUIDED")
-    vehicle.armed = True
-    vehicle.flush()
+    wren.mode = VehicleMode("GUIDED")
+    wren.armed = True
+    wren.flush()
 
-    # Confirm vehicle armed before attempting to take off
-    while not vehicle.armed:
+    # Confirm wren armed before attempting to take off
+    while not wren.armed:
         print(" Waiting for arming...")
         time.sleep(1)
 
+    # Speech
     print("We are armed!")
     engine = pyttsx3.init()
     engine.say("Motors Armed... preparing for takeoff...")
@@ -172,47 +140,73 @@ def do_arm():
 do_arm()
     '''
     print("Taking off!")
-    vehicle.simple_takeoff(5)  # Take off to target altitude
-    # Wait until the vehicle reaches a safe height before processing the goto
-    #  (otherwise the command after Vehicle.simple_takeoff will execute
+    wren.simple_takeoff(5)  # Take off to target altitude
+    # Wait until the wren reaches a safe height before processing the goto
+    #  (otherwise the command after wren.simple_takeoff will execute
     #   immediately).
     while True:
-        print(" Altitude: ", vehicle.location.global_relative_frame.alt)
+        print(" Altitude: ", wren.location.global_relative_frame.alt)
         # Break and return from function just below target altitude.
-        if vehicle.location.global_relative_frame.alt >= 5 * 0.95:
+        if wren.location.global_relative_frame.alt >= 5 * 0.95:
             print("Reached target altitude")
             break
         time.sleep(0.25)
     '''
 
-
+#####
+# Upload Mission
+#####
 upload_mission(mission)
 
 #time.sleep(10)
 # #eee
 
-vehicle.channels.overrides['3'] = 1500
+wren.channels.overrides['3'] = 1500
 
-vehicle.commands.next=0
+wren.commands.next=0
 
-# Set mode to AUTO to start mission
-vehicle.mode = VehicleMode("AUTO")
+#####
+# Set mode to AUTO to start drop mission
+#####
+wren.mode = VehicleMode("AUTO")
 last = 0
 
 while True:
-    nextwaypoint = vehicle.commands.next
+    nextwaypoint = wren.commands.next
     print("Next waypoint = ", nextwaypoint)
-    if nextwaypoint == len(vehicle.commands):
+    if nextwaypoint == len(wren.commands):
         break
+
+#####
+# Set Wren mode to loiter and wait for next mission
+#####
+
+
+#####
+# Set mode to loiter and wait for next mission
+#####
+
+
+#####
+# Set mode to AUTO to start drop mission
+#####
+
+#####
+# Set mode to loiter and wait for next mission
+#####
+
+#####
+# Set mode to AUTO to start drop mission
+#####
 
 
 #print("Returning to Launch")
-#vehicle.mode = VehicleMode("RTL")
+#wren.mode = VehicleMode("RTL")
 '''
 while True:
-    print(" Altitude: ", vehicle.location.global_relative_frame.alt)
+    print(" Altitude: ", wren.location.global_relative_frame.alt)
     # Break and return from function just below target altitude.
-    if vehicle.location.global_relative_frame.alt <= 0 + 1:
+    if wren.location.global_relative_frame.alt <= 0 + 1:
         print("Landed")
         break
     time.sleep(0.25)
@@ -220,9 +214,21 @@ while True:
 
 time.sleep(5)
 
-#vehicle.mode = VehicleMode("GUIDED")
+## TODO:
+# add second vechile
+# add loiter
 
-#print(math.degrees(vehicle.attitude.yaw))
+#Close wren object before exiting script
+print("Close wren object")
+wren.close()
+
+# Shut down simulator if it was started.
+if sitl is not None:
+    sitl.stop()
+
+#wren.mode = VehicleMode("GUIDED")
+
+#print(math.degrees(wren.attitude.yaw))
 
 #copy_control.copytree(image_dest, image_src)
 
