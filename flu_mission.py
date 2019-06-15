@@ -17,7 +17,7 @@ parser.add_argument('--connect',
 args = parser.parse_args()
 
 connection_string_wren = args.connect
-connection_string_cygnet = '10.0.2.15:14551'
+#connection_string_cygnet = '10.0.2.15:14551'
 ## Change for winch
 winchChannel = 4
 winchTime = 30
@@ -45,8 +45,8 @@ wren = connect(connection_string_wren, wait_ready=True, baud=57600, heartbeat_ti
 # Connect to the cygnet
 #####
 
-print('Connecting to Cygnet on: %s' % connection_string_cygnet)
-cygnet = connect(connection_string_cygnet, wait_ready=True, baud=57600, heartbeat_timeout=120)
+#print('Connecting to Cygnet on: %s' % connection_string_cygnet)
+#cygnet = connect(connection_string_cygnet, wait_ready=True, baud=57600, heartbeat_timeout=120)
 
 # Speech
 import pyttsx3
