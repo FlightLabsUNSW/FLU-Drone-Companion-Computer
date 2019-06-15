@@ -351,7 +351,7 @@ def main(mission_data, stepDistance, exclusionRadiusTolerance, flyZoneTolerance,
     exportMission(waypointType, splineWaypoint, flightPath, default_alt, header_name, splinePoints)
 
 # ArgParse Default Values
-stepDistanceMin = 50.0 # in feet
+stepDistanceMin = 100.0 # in feet
 exclusionRadiusToleranceMin = 200.0 # in feet
 flyZoneToleranceMin = 100.0 # in feet
 default_alt_min = 150.0 # in feet
