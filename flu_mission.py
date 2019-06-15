@@ -160,7 +160,7 @@ do_arm()
 #####
 # Upload Mission
 #####
-upload_mission(mission)
+upload_mission("mission/waypoints/ugv_mission_update.waypoints")
 
 #time.sleep(10)
 # #eee
@@ -178,7 +178,7 @@ last = 0
 while True:
     nextwaypoint = wren.commands.next
     print("Next waypoint = ", nextwaypoint)
-    if nextwaypoint == len(wren.commands):
+    if nextwaypoint == len(wren.commands)-1:
         break
 
 #####
