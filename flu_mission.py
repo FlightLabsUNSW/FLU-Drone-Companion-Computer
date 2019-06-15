@@ -237,147 +237,146 @@ def do_arm_cygnet():
     engine.say("Motors Armed... preparing for drive...")
     engine.runAndWait()
 
-if __name__ == "__main__":
-    #####
-    # Upload Mission
-    #####
-    upload_mission_wren("mission/waypoints/uav_mission.waypoints")
-    upload_mission_cygnet("mission/waypoints/ugv_mission_update.waypoints")
+#####
+# Upload Mission
+#####
+upload_mission_wren("mission/waypoints/uav_mission.waypoints")
+upload_mission_cygnet("mission/waypoints/ugv_mission_update.waypoints")
 
-    #####
-    # Arm WREN
-    #####
-    do_arm_wren()
+#####
+# Arm WREN
+#####
+do_arm_wren()
 
-    # wren.location.global_relative_frame.alt
-
+# wren.location.global_relative_frame.alt
 
 
-    #time.sleep(10)
 
-    wren.commands.next=0
+#time.sleep(10)
 
-    #####
-    # Set mode to AUTO to start drop mission
-    #####
-    wren.mode = VehicleMode("AUTO")
-    last = 0
+wren.commands.next=0
 
-    while True:
-        nextwaypoint = wren.commands.next
-        print("Next waypoint = ", nextwaypoint)
-        if nextwaypoint == len(wren.commands):
-            break
+#####
+# Set mode to AUTO to start drop mission
+#####
+wren.mode = VehicleMode("AUTO")
+last = 0
 
-    time.sleep(1)
-    #####
-    # Set Wren mode to loiter and wait for next mission
-    #####
-    wren.mode = VehicleMode("LOITER")
-    time.sleep(1)
+while True:
+    nextwaypoint = wren.commands.next
+    print("Next waypoint = ", nextwaypoint)
+    if nextwaypoint == len(wren.commands):
+        break
 
-    print("If ready for drop press y:")
-    # Speech
-    import pyttsx3
-    engine = pyttsx3.init()
-    engine.say("Ready to drop")
-    engine.runAndWait()
+time.sleep(1)
+#####
+# Set Wren mode to loiter and wait for next mission
+#####
+wren.mode = VehicleMode("LOITER")
+time.sleep(1)
 
-    while not input().lower().endswith("y"):
-        continue
+print("If ready for drop press y:")
+# Speech
+import pyttsx3
+engine = pyttsx3.init()
+engine.say("Ready to drop")
+engine.runAndWait()
 
-    #####
-    # Send winch
-    #####
-    print("Dropping")
-    # Speech
-    import pyttsx3
-    engine = pyttsx3.init()
-    engine.say("Dropping the Package... Dropping the Package...")
-    engine.runAndWait()
-    wren.channels.overrides[winchChannel] = 1500
-    time.sleep(1)
-    wren.channels.overrides[winchChannel] = 0
+while not input().lower().endswith("y"):
+    continue
 
-
-    #####
-    # Arm
-    #####
-    print("Waiting for drop")
-    # Speech
-    import pyttsx3
-    engine = pyttsx3.init()
-    engine.say("Waiting for drop to complete")
-    engine.runAndWait()
-
-    time.sleep(winchTime)
-
-    print("Drop Complete")
-    # Speech
-    import pyttsx3
-    engine = pyttsx3.init()
-    engine.say("Drop Complete")
-    engine.runAndWait()
-
-    print("Arming Cygnet")
-    # Speech
-    import pyttsx3
-    engine = pyttsx3.init()
-    engine.say("Arming Cygnet... Please stand clear...")
-    engine.runAndWait()
-
-    do_arm_cygnet()
-    # disconnect winch
-    print("Disconnecting winch")
-    # Speech
-    import pyttsx3
-    engine = pyttsx3.init()
-    engine.say("Disconnecting winch")
-    engine.runAndWait()
-    wren.channels.overrides[winchChannel] = 1500
-
-    cygnet.commands.next=0
-
-    #####
-    # Set mode to AUTO to start drop mission
-    #####
-    cygnet.mode = VehicleMode("AUTO")
-    last = 0
-
-    while True:
-        nextwaypoint = cygnet.commands.next
-        print("Next waypoint = ", nextwaypoint)
-        if nextwaypoint == len(wren.commands):
-            break
-
-    cygnet.armed = False
-    time.sleep(1)
-
-    wren.mode = VehicleMode("RTL")
-
-    wren.armed = False
-    time.sleep(1)
-
-    time.sleep(5)
+#####
+# Send winch
+#####
+print("Dropping")
+# Speech
+import pyttsx3
+engine = pyttsx3.init()
+engine.say("Dropping the Package... Dropping the Package...")
+engine.runAndWait()
+wren.channels.overrides[winchChannel] = 1500
+time.sleep(1)
+wren.channels.overrides[winchChannel] = 0
 
 
-    #Close wren object before exiting script
-    print("Say bye to Wren")
-    wren.close()
+#####
+# Arm
+#####
+print("Waiting for drop")
+# Speech
+import pyttsx3
+engine = pyttsx3.init()
+engine.say("Waiting for drop to complete")
+engine.runAndWait()
 
-    print("Say bye to Cygnet")
-    cygnet.close()
+time.sleep(winchTime)
 
-    # Shut down simulator if it was started.
-    if sitl is not None:
-        sitl.stop()
+print("Drop Complete")
+# Speech
+import pyttsx3
+engine = pyttsx3.init()
+engine.say("Drop Complete")
+engine.runAndWait()
 
-    #time.sleep(30)
+print("Arming Cygnet")
+# Speech
+import pyttsx3
+engine = pyttsx3.init()
+engine.say("Arming Cygnet... Please stand clear...")
+engine.runAndWait()
 
-    #wren.mode = VehicleMode("GUIDED")
+do_arm_cygnet()
+# disconnect winch
+print("Disconnecting winch")
+# Speech
+import pyttsx3
+engine = pyttsx3.init()
+engine.say("Disconnecting winch")
+engine.runAndWait()
+wren.channels.overrides[winchChannel] = 1500
 
-    #print(math.degrees(wren.attitude.yaw))
+cygnet.commands.next=0
 
-    #copy_control.copytree(image_dest, image_src)
+#####
+# Set mode to AUTO to start drop mission
+#####
+cygnet.mode = VehicleMode("AUTO")
+last = 0
 
-    #while not False: time.sleep(0.1)
+while True:
+    nextwaypoint = cygnet.commands.next
+    print("Next waypoint = ", nextwaypoint)
+    if nextwaypoint == len(wren.commands):
+        break
+
+cygnet.armed = False
+time.sleep(1)
+
+wren.mode = VehicleMode("RTL")
+
+wren.armed = False
+time.sleep(1)
+
+time.sleep(5)
+
+
+#Close wren object before exiting script
+print("Say bye to Wren")
+wren.close()
+
+print("Say bye to Cygnet")
+cygnet.close()
+
+# Shut down simulator if it was started.
+if sitl is not None:
+    sitl.stop()
+
+#time.sleep(30)
+
+#wren.mode = VehicleMode("GUIDED")
+
+#print(math.degrees(wren.attitude.yaw))
+
+#copy_control.copytree(image_dest, image_src)
+
+#while not False: time.sleep(0.1)
