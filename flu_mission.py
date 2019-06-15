@@ -115,16 +115,6 @@ def readmission_wren(aFileName):
                 missionlist.append(cmd)
     return missionlist
 
-print("Ready for mission? Press y:")
-# Speech
-import pyttsx3
-engine = pyttsx3.init()
-engine.say("Ready for mission? Press y")
-engine.runAndWait()
-
-while not input().lower().endswith("y"):
-    continue
-
 #####
 # Arm Wren
 #####
@@ -247,6 +237,16 @@ def do_arm_cygnet():
     engine.say("Motors Armed... preparing for drive...")
     engine.runAndWait()
 
+print("Ready for mission? Press y:")
+# Speech
+import pyttsx3
+engine = pyttsx3.init()
+engine.say("Ready for mission? Press y")
+engine.runAndWait()
+
+while not input().lower().endswith("y"):
+    continue
+
 #####
 # Upload Mission
 #####
@@ -298,12 +298,14 @@ while not input().lower().endswith("y"):
 #####
 # Send winch
 #####
+#Sendit !!!!! lol
 print("Dropping")
 # Speech
 import pyttsx3
 engine = pyttsx3.init()
 engine.say("Dropping the Package... Dropping the Package...")
 engine.runAndWait()
+
 wren.channels.overrides[winchChannel] = 1500
 time.sleep(1)
 wren.channels.overrides[winchChannel] = 0
@@ -336,6 +338,7 @@ engine.say("Arming Cygnet... Please stand clear...")
 engine.runAndWait()
 
 do_arm_cygnet()
+
 # disconnect winch
 print("Disconnecting winch")
 # Speech
