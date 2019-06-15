@@ -250,12 +250,14 @@ def calculateFlightPath(waypoints, exclusionPoints, boundaryPoints, stepDistance
 	# exclusionRadius - nx1 list - List of Radius of Exclusion Zones to be Considered
 	### Output ###
 	# flightPath - nx1 numpy.array - List of Target Point Coordinate Vectors Tracing Flight Path
+        # splinePoints - nx1 list - List of Points to write as splines
 
     if len(waypoints) < 2:
         print("There are not enough waypoints provided!")
         return None
 
     flightPath = []
+    splinePoints = []
 	# For each pair of waypoints...
     for i in range(len(waypoints) - 1):
         flightPath.append(waypoints[i])
@@ -280,6 +282,7 @@ def calculateFlightPath(waypoints, exclusionPoints, boundaryPoints, stepDistance
                 minIndex = exclusionDistance.index(min(exclusionDistance))
                 targetPoint = extendVecByDist(exclusionPoints[minIndex], targetPoint, exclusionRadiusTotal)
                 flightPath.append(targetPoint)
+                splinePoints.append(targetPoint)
 			# 2d. Iterate for the other target points
         flightPath.append(waypoints[i + 1])
 
@@ -310,9 +313,9 @@ def calculateFlightPath(waypoints, exclusionPoints, boundaryPoints, stepDistance
             if flyZoneDistance < flyZoneTolerance:
                 point = closestPointonLine(boundaryPoints[i], boundaryPoints[i + 1], point, flyZoneTolerance)
 
-    return flightPath
+    return flightPath, splinePoints
 
-def exportMission(waypointType, flightPath, default_alt, header_name):
+def exportMission(waypointType, splineWaypoint, flightPath, default_alt, header_name, splinePoints):
     ### INPUTS ###
     # waypointType - integer - Number defining Waypoint Type
     # flightPath - nx1 list - List storing Coordinate Vectors for Travel Points for Flight
@@ -324,11 +327,15 @@ def exportMission(waypointType, flightPath, default_alt, header_name):
 
     file.write(header_name + "\n")
     for idx, point in enumerate(flightPath):
-        file.write( str(idx) + "\t0\t0\t" + str(waypointType) + "\t0.000000\t0.000000\t0.000000\t0.000000\t" +
+        if point in splinePoints:
+            waypointTypeInsert = splineWaypoint
+        else:
+            waypointTypeInsert = waypointType
+        file.write( str(idx) + "\t0\t0\t" + str(waypointTypeInsert) + "\t0.000000\t0.000000\t0.000000\t0.000000\t" +
             "{:.6f}".format(point[0]) + "\t" + "{:.6f}".format(point[1]) + "\t" + "{:.6f}".format(default_alt) +
             "\t" + str(1) + "\n")
 
-def main(mission_data, stepDistance, exclusionRadiusTolerance, flyZoneTolerance, waypointType, default_alt, header_name):
+def main(mission_data, stepDistance, exclusionRadiusTolerance, flyZoneTolerance, waypointType, splineWaypoint, default_alt, header_name):
 	### INPUTS ###
 	# mission_data - dictionary - Received Mission Data
     ### OUTPUT ###
@@ -338,10 +345,10 @@ def main(mission_data, stepDistance, exclusionRadiusTolerance, flyZoneTolerance,
     waypoints, exclusionPoints, exclusionRadius, boundaryPoints = extractMissionData(mission_data)
 
     # 2. Calculate the Flight Path
-    flightPath = calculateFlightPath(waypoints, exclusionPoints, boundaryPoints, stepDistance, exclusionRadius, exclusionRadiusTolerance, flyZoneTolerance)
+    flightPath, splinePoints = calculateFlightPath(waypoints, exclusionPoints, boundaryPoints, stepDistance, exclusionRadius, exclusionRadiusTolerance, flyZoneTolerance)
 
     # 3. Export the Mission to a File
-    exportMission(waypointType, flightPath, default_alt, header_name)
+    exportMission(waypointType, splineWaypoint, flightPath, default_alt, header_name, splinePoints)
 
 # ArgParse Default Values
 stepDistanceMin = 50.0 # in feet
@@ -365,6 +372,7 @@ flyZoneTolerance = results.flyZoneTolerance
 default_alt = results.default_alt
 
 waypointType = 16
+splineWaypoint = 82
 header_name = "QGC WPL 110"
 
-main(mission_data, stepDistance, exclusionRadiusTolerance, flyZoneTolerance, waypointType, default_alt, header_name)
+main(mission_data, stepDistance, exclusionRadiusTolerance, flyZoneTolerance, waypointType, splineWaypoint, default_alt, header_name)
